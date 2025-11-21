@@ -27,7 +27,7 @@ jobs:
         id: publish
         run: find dist/assets/*.js -type -f execdir echo '$filename={}' >> $GITHUB_OUTPUT ';'
       - name: Upload artifact
-        uses: action/upload-artifact@v3
+        uses: actions/upload-artifact@v3
         with:
           name: dist-files
           path: dist
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
-        uses: action/download-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: dist-files
       - name: Output files in directory
