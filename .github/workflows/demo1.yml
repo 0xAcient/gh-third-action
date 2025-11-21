@@ -19,8 +19,12 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     outputs:
-      file: ${{steps.publish.outputs.file}}
+      file: ${{steps.publish.outputs.filename}}
     steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm ci
       - name: Build code
         run: npm run build
       - name: Output filename
