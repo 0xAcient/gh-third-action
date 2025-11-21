@@ -1,33 +1,43 @@
-name: Events Demo 1
+name: Practicing Artifact and Caching
 on:
-  pull_request:
-    types:
-      - opened
-    branches:
-      - main
-      - "dev-*"
-      - "feat/**"
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-      - "dev-*"
-      - "feat/**"
-    paths-ignore:
-      - ".github/workflows/*"
+  branches:
+    - main
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Output event data
-        run: echo "${{ toJSON(github.event) }}"
       - name: Get code
         uses: actions/checkout@v3
       - name: Install dependencies
         run: npm ci
       - name: Test code
         run: npm run test
+
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      file: ${{steps.publish.outputs.file}}
+    steps:
       - name: Build code
         run: npm run build
-      - name: Deploy project
-        run: echo "Deploying..."
+      - name: Output filename
+        id: publish
+        run: find dist/assets/*.js -type -f execdir echo '$filename={}' >> $GITHUB_OUTPUT ';'
+      - name: Upload artifact
+        uses: action/upload-artifact@v3
+        with:
+          name: dist-files
+          path: dist
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: action/download-artifact@v3
+        with:
+          name: dist-files
+      - name: Output files in directory
+        run: ls
+      - name: output filename
+        run: echo "${{needs.build.outputs.file}}"
+      - name: Deploy code
+        run: echo "Deploying...."
